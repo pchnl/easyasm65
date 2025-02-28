@@ -64,7 +64,7 @@ user_address: !byte $00, $00
     rts
 
 install:
-    ; Copy EasyAsm from $8700000 to $52000
+    ; Copy EasyAsm from $8702000 to $52000
     lda #0
     sta $d704
     lda #^install_dma
@@ -121,8 +121,8 @@ install_dma:
     !byte $80, $87       ; src mb  = $(0)87
     !byte $81, $00       ; dest mb = $(0)00
     !byte $0b, $00
-    !byte $00, $00, $60  ; $6000 bytes
-    !byte $00, $00, $00  ; src  $(087)00000
+    !byte $00, $00, $B7  ; $B700 bytes
+    !byte $00, $20, $00  ; src  $(087)02000
     !byte $00, $20, $05  ; dest $(000)52000
     !byte $00, $00, $00
 

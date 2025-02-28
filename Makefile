@@ -35,7 +35,7 @@ NUM_OF_SUITES = 11
 all: easyasm.d81
 
 clean:
-	rm *.prg *.d81 *.lst
+	rm -f *.prg *.d81 *.lst *.rpt
 
 easyasm.prg: easyasm.asm test_common.asm ${TEST_SUITES}
 

@@ -107,26 +107,28 @@ bas_ptr         *=*+4   ; 32-bit pointer, bank 0
 
 
 ; Attic map
-attic_easyasm_stash = $08700000                    ; 0.0000-0.5FFF
-attic_source_stash  = attic_easyasm_stash + $6000  ; 0.6000-1.36FF
-attic_symbol_table  = attic_source_stash + $d700   ; 1.3700-1.56FF (8 KB)
+attic_start         = $08700000
+attic_dmajobs       = attic_start                  ; 0.0000-0.1FFF
+attic_easyasm_stash = attic_dmajobs + $2000        ; 0.2000-0.D6FF
+; (Gap: 0.D700-1.1FFF = $4900 = 18.25 KB)
+attic_source_stash  = attic_start + $12000         ; 1.2000-1.D6FF
+attic_symbol_table  = attic_source_stash + $d700   ; 1.D700-1.FFFF (10.25 KB)
    ; If symbol table has to cross a bank boundary, check code for 16-bit addresses. :|
-attic_symbol_names  = attic_symbol_table + $2000   ; 1.5700-1.B6FF (24 KB)
+attic_symbol_names  = attic_start + $20000         ; 2.0000-2.5FFF (24 KB)
 attic_symbol_names_end = attic_symbol_names + $6000
-attic_segments      = attic_symbol_names + $6000   ; 1.B700-2.6700 (44 KB)
-attic_segments_end  = attic_segments + $b000
-attic_forced16s     = attic_segments + $b000       ; 2.6700-2.7D00 (5.5 KB)
-attic_forced16s_end = attic_forced16s + $1600
-attic_rellabels     = attic_forced16s + $1600      ; 2.7D00-2.8D00 (4 KB)
+attic_segments      = attic_symbol_names + $6000   ; 2.6000-2.FFFF (40 KB)
+attic_segments_end  = attic_segments + $a000
+attic_forced16s     = attic_segments + $a000       ; 3.0000-3.1FFF (8 KB)
+attic_forced16s_end = attic_forced16s + $2000
+attic_rellabels     = attic_forced16s + $2000      ; 3.2000-3.2FFF (4 KB)
 attic_rellabels_end = attic_rellabels + $1000
-; (Gap: 2.8D00-3.0000 = $7300 = 28.75 KB)
+attic_viewer_lines = attic_rellabels_end            ; 3.3000-3.4FFF (8 KB)
+attic_viewer_lines_end = attic_viewer_lines + $2000
+attic_viewer_buffer = attic_viewer_lines_end        ; 3.5000-3.FFFF (44 KB)
+attic_viewer_buffer_end = attic_viewer_buffer + $B000
 ; Save file cannot cross a bank boundary, limit 64 KB
-attic_savefile_start = attic_easyasm_stash + $30000 ; 3.0000-4.0000 (64 KB)
+attic_savefile_start = attic_start + $40000        ; 4.0000-5.0000 (64 KB)
 attic_savefile_max_end = attic_savefile_start + $10000
-attic_viewer_lines = attic_savefile_max_end
-attic_viewer_lines_end = attic_viewer_lines + $2000 ; 4.0000-4.2000 (8 KB)
-attic_viewer_buffer = attic_viewer_lines_end        ; 4.2000-5.0000 (56 KB)
-attic_viewer_buffer_end = attic_viewer_buffer + $E000
 
 ; - Symbol table entries are 8 bytes: (name_ptr_24, flags_8, value_32)
 SYMTBL_ENTRY_SIZE = 8
@@ -271,7 +273,7 @@ chr_singlequote = 39
 
     jmp dispatch
 id_string:
-    !pet "easyasm v0.1",0
+    !pet "easyasm v0.2",0
 
 ; Initialize
 ; - Assume entry conditions (B, bank 5, MAP)

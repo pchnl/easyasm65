@@ -1,2 +1,2 @@
-EasyAsm v0.1, by dddaaannn
+EasyAsm v0.2, by dddaaannn
 https://github.com/dansanderson/easyasm65
