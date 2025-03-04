@@ -29,13 +29,20 @@
 }
 
 !macro test_start .tnum {
-    +print_strlit "  test "
-    lda #.tnum
-    jsr print_hex8
+    ldz #.tnum
+    jsr test_start_impl
 }
 !macro test_end {
-    +print_strlit_line "... ok"
+    jsr test_end_impl
 }
+test_start_impl:
+    +print_strlit "  test "
+    tza
+    jsr print_hex8
+    rts
+test_end_impl:
+    +print_strlit_line "... ok"
+    rts
 
 !macro assert_eq .msg {
     beq +
