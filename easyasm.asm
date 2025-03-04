@@ -7687,8 +7687,6 @@ bootstrap_ml_start = source_start + 1 + bootstrap_basic_preamble_end - bootstrap
         !source "test_suite_4.asm"
     } else if TEST_SUITE = 6 {
         !source "test_suite_6.asm"
-    } else if TEST_SUITE = 9 {
-        !source "test_suite_9.asm"
     } else if TEST_SUITE = 10 {
         !source "test_suite_10.asm"
     } else {
