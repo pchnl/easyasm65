@@ -55,10 +55,10 @@
     jsr expect_expr
 
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     +assert_mem_eq_byte tok_pos, .etokpos, test_msg_wrong_tokpos
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     +assert_mem_eq_byte tok_pos, .etokpos, test_msg_wrong_tokpos
 
     !if .eflags != F_EXPR_UNDEFINED {
@@ -101,10 +101,22 @@ tee_tb_27: !byte tk_number_literal, 0, $f4, $ff, $ff, $ff, tk_asr, 1, tk_number_
 tee_tb_28: !byte tk_number_literal, 0, $0c, $00, $00, $00, tk_lsr, 1, tk_number_literal, 2, $03, $00, $00, $00, 0, $ff
 tee_tb_29: !byte tk_number_literal, 0, $f4, $ff, $ff, $ff, tk_lsr, 1, tk_number_literal, 2, $03, $00, $00, $00, 0, $ff
 tee_tb_30: !byte tk_number_literal, 0, $01, $00, $00, $00, tk_asl, 1, tk_number_literal, 2, $02, $00, $00, $00, tk_asl, 1, tk_number_literal, 2, $03, $00, $00, $00, 0, $ff
+tee_tb_31: !byte tk_lt, 0, tk_number_literal, 1, $aa, $bb, $cc, $dd, 0, $ff
+tee_tb_32: !byte tk_gt, 0, tk_number_literal, 1, $aa, $bb, $cc, $dd, 0, $ff
+tee_tb_33: !byte tk_power, 0, tk_number_literal, 1, $aa, $bb, $cc, $dd, 0, $ff
+tee_tb_34: !byte tk_megabyte, 0, tk_number_literal, 1, $aa, $bb, $cc, $dd, 0, $ff
+tee_tb_35: !byte tk_number_literal, 0, $f0, $f0, $f0, $f0, tk_ampersand, 1, tk_number_literal, 2, $cc, $aa, $cc, $aa, 0, $ff
+tee_tb_36: !byte tk_number_literal, 0, $f0, $f0, $f0, $f0, tk_pipe, 1, tk_number_literal, 2, $cc, $aa, $cc, $aa, 0, $ff
+tee_tb_37: !byte tk_number_literal, 0, $f0, $f0, $f0, $f0, tk_label_or_reg, 10, 3, tk_number_literal, 14, $cc, $aa, $cc, $aa, 0, $ff
+tee_tb_38: !byte tk_number_literal, 0, $f0, $f0, $f0, $f0, tk_ampersand, 1, tk_number_literal, 2, $cc, $aa, $cc, $aa, tk_pipe, 2, tk_number_literal, 3, $01, $02, $03, $04, 0, $ff
+tee_tb_39: !byte tk_number_literal, 0, $06, $00, $00, $00, tk_remainder, 1, tk_number_literal, 2, $07, $00, $00, $00, 0, $ff
+tee_tb_40: !byte tk_number_literal, 0, $07, $00, $00, $00, tk_remainder, 1, tk_number_literal, 2, $07, $00, $00, $00, 0, $ff
+tee_tb_41: !byte tk_number_literal, 0, $08, $00, $00, $00, tk_remainder, 1, tk_number_literal, 2, $07, $00, $00, $00, 0, $ff
 tee_tb_end:
 tee_line_1: !pet "label",0
 tee_line_2: !pet "8 div 2",0
 tee_line_3: !pet "60 div 5 div 4",0
+tee_line_4: !pet "$f0f0f0f0 xor $ccaaccaa"
 
 
 !macro test_tokenize_pseudoop .tnum, .str, .pos, .ec, .etoken, .epos {
@@ -170,7 +182,7 @@ test_tokenize_pseudoop_7: !pet "to  ",0
     stx line_pos
     jsr tokenize_pluses_and_minuses
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     ldx #0
     lda tokbuf,x
     cmp #.etoken
@@ -184,7 +196,7 @@ test_tokenize_pseudoop_7: !pet "to  ",0
     cmp #.elen
     +assert_eq test_msg_wrong_value
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     lda line_pos
     cmp #.pos
     +assert_eq test_msg_wrong_result
@@ -215,14 +227,14 @@ test_tokenize_pluses_and_minuses_5: !pet "-+- +-+",0
     stx line_pos
     jsr tokenize_other
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     cpx #.etoken
     +assert_eq test_msg_wrong_result
     lda line_pos
     cmp #.epos
     +assert_eq test_msg_wrong_value
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     lda line_pos
     cmp #.pos
     +assert_eq test_msg_wrong_result
@@ -291,11 +303,11 @@ test_load_line_to_strbuf_1e: !pet "abc",0
     stz tok_pos
     jsr expect_addressing_expr
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     +assert_mem_eq_byte err_code, .eerror, test_msg_wrong_err_code
     +assert_mem_eq_byte line_pos, .eerror_pos, test_msg_wrong_err_pos
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     cpx #<.emode
     +assert_eq test_msg_wrong_mode
     cpy #>.emode
@@ -401,8 +413,18 @@ run_test_suite_cmd:
     ; (Acme's own integer width is platform dependent (C int) and likely
     ; 64-bit, so we can't ask Acme to calculate -12 <<< 3.)
     +test_expect_expr $21, "lsr negative", tee_tb_29, tee_tb_30, tee_line_3, 0, 14, $1ffffffe, 0
-    +test_expect_expr $22, "multiple asl", tee_tb_30, tee_tb_end, tee_line_3, 0, 22, 1 << 2 << 3, 0
-
+    +test_expect_expr $22, "multiple asl", tee_tb_30, tee_tb_31, tee_line_3, 0, 22, 1 << 2 << 3, 0
+    +test_expect_expr $23, "low byte", tee_tb_31, tee_tb_32, tee_line_3, 0, 8, <$ddccbbaa, 0
+    +test_expect_expr $24, "high byte", tee_tb_32, tee_tb_33, tee_line_3, 0, 8, >$ddccbbaa, 0
+    +test_expect_expr $25, "bank byte", tee_tb_33, tee_tb_34, tee_line_3, 0, 8, ^$ddccbbaa, 0
+    +test_expect_expr $26, "mega byte", tee_tb_34, tee_tb_35, tee_line_3, 0, 8, <($ddccbbaa >> 24), 0
+    +test_expect_expr $27, "and", tee_tb_35, tee_tb_36, tee_line_4, 0, 14, $a0c0a0c0, 0
+    +test_expect_expr $28, "or", tee_tb_36, tee_tb_37, tee_line_4, 0, 14, $fafcfafc, 0
+    +test_expect_expr $29, "xor", tee_tb_37, tee_tb_38, tee_line_4, 0, 15, $5a3c5a3c, 0
+    +test_expect_expr $2A, "and or", tee_tb_38, tee_tb_39, tee_line_4, 0, 22, $a4c3a2c1, 0
+    +test_expect_expr $2B, "remainder b", tee_tb_39, tee_tb_40, tee_line_1, 0, 14, 6 % 7, 0
+    +test_expect_expr $2C, "remainder c", tee_tb_40, tee_tb_41, tee_line_1, 0, 14, 7 % 7, 0
+    +test_expect_expr $2D, "remainder d", tee_tb_41, tee_tb_end, tee_line_1, 0, 14, 8 % 7, 0
 
     +print_chr chr_cr
     +print_strlit_line "tokenize-pseudoop"

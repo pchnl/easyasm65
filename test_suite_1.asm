@@ -307,12 +307,12 @@ test_find_in_token_list_9: !pet "adc+2  ",0
     stx line_pos
     jsr tokenize_mnemonic
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     cpx #.etoken
     +assert_eq test_msg_wrong_result
     +assert_mem_eq_byte line_pos, .epos, test_msg_wrong_result
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     +assert_mem_eq_byte line_pos, .epos, test_msg_wrong_err_pos
 }
 
@@ -441,11 +441,11 @@ test_expect_oppop_end:
     jsr expect_literal
 
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     ldx tok_pos
     +assert_eq test_msg_wrong_tokpos
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     lda expr_result
     cmp #<.eresult
     +assert_eq test_msg_wrong_result
@@ -487,11 +487,11 @@ test_expect_literal_end:
     jsr expect_pluses_or_minuses
 
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     ldx tok_pos
     +assert_eq test_msg_wrong_tokpos
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     cmp #.etok
     +assert_eq test_msg_wrong_result
     cpy #.elen
@@ -516,11 +516,11 @@ test_expect_literal_end:
     jsr expect_single_plus_or_minus
 
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     ldx tok_pos
     +assert_eq test_msg_wrong_tokpos
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     cmp #.etok
     +assert_eq test_msg_wrong_result
 }
@@ -543,11 +543,11 @@ test_expect_literal_end:
     jsr expect_single_minus
 
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     ldx tok_pos
     +assert_eq test_msg_wrong_tokpos
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
 }
 
     +test_end

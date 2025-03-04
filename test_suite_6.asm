@@ -635,9 +635,9 @@ set_up_overlapping_segment_for_test:
     !if .c { sec } else { clc }
     jsr does_a_segment_overlap
     !if .ec {
-        +assert_cs test_msg_ecs
+        jsr assert_cs
     } else {
-        +assert_cc test_msg_ecc
+        jsr assert_cc
     }
 
     +test_end
@@ -651,9 +651,9 @@ set_up_overlapping_segment_for_test:
     }
     jsr do_any_segments_overlap
     !if .yesoverlap {
-        +assert_cs test_msg_ecs
+        jsr assert_cs
     } else {
-        +assert_cc test_msg_ecc
+        jsr assert_cc
     }
     +test_end
 }

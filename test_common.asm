@@ -51,20 +51,6 @@
 +
 }
 
-!macro assert_cc .msg {
-    bcc +
-    +print_fail_line .msg
-    brk
-+
-}
-
-!macro assert_cs .msg {
-    bcs +
-    +print_fail_line .msg
-    brk
-+
-}
-
 !macro assert_mem_eq_byte .addr, .val, .msg {
     lda .addr
     cmp #.val
@@ -173,3 +159,15 @@ test_msg_wrong_value: !pet "wrong value",0
 test_msg_expected_defined_value: !pet "expected defined value",0
 test_msg_expected_undefined_value: !pet "expected undefined value",0
 test_msg_expected_leading_zero_value: !pet "expected value leading zero",0
+
+assert_cs:
+    bcs +
+    +print_fail_line test_msg_ecs
+    brk
++   rts
+
+assert_cc:
+    bcc +
+    +print_fail_line test_msg_ecc
+    brk
++   rts

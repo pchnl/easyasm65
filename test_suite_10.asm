@@ -12,7 +12,7 @@
     ldx #<.pc
     ldy #>.pc
     jsr add_rellabel
-    +assert_cc test_msg_ecc
+    jsr assert_cc
 }
 
 !macro test_add_rellabel .tnum, .ebytes_start, .ebytes_end {
@@ -45,13 +45,13 @@
     jsr eval_rellabel
 
     !if .ec {
-        +assert_cs test_msg_ecs
+        jsr assert_cs
         cpx #<.epc
         +assert_eq test_msg_wrong_pc
         cpy #>.epc
         +assert_eq test_msg_wrong_pc
     } else {
-        +assert_cc test_msg_ecc
+        jsr assert_cc
     }
 
     +test_end

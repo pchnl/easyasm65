@@ -34,11 +34,11 @@
     jsr assemble_instruction
 
 !if .ec {
-    +assert_cs test_msg_ecs
+    jsr assert_cs
     +assert_mem_eq_byte tok_pos, 0, test_msg_tokpos_zero
     +assert_mem_eq_byte err_code, .eerr, test_msg_wrong_err_code
 } else {
-    +assert_cc test_msg_ecc
+    jsr assert_cc
     +assert_mem_eq_word program_counter, .epc, test_msg_wrong_pc
 
     lda #<.ebytes
