@@ -116,27 +116,29 @@ attic_start         = $08700000
 attic_easyasm_stash = attic_start + $2000        ; 0.2000-0.D6FF
 ; (Gap: 0.D700-1.1FFF = $4900 = 18.25 KB)
 attic_source_stash  = attic_start + $12000         ; 1.2000-1.D6FF
-attic_symbol_table  = attic_source_stash + $d700   ; 1.D700-1.FFFF (10.25 KB)
+attic_symbol_table  = attic_source_stash + $b700   ; 1.D700-1.FFFF (10.25 KB)
+attic_symbol_table_end = attic_symbol_table + $2900
    ; If symbol table has to cross a bank boundary, check code for 16-bit addresses. :|
 attic_symbol_names  = attic_start + $20000         ; 2.0000-2.5FFF (24 KB)
 attic_symbol_names_end = attic_symbol_names + $6000
-attic_segments      = attic_symbol_names + $6000   ; 2.6000-2.FFFF (40 KB)
-attic_segments_end  = attic_segments + $a000
-attic_forced16s     = attic_segments + $a000       ; 3.0000-3.1FFF (8 KB)
+attic_forced16s     = attic_symbol_names_end       ; 2.6000-2.7FFF (8 KB)
 attic_forced16s_end = attic_forced16s + $2000
-attic_rellabels     = attic_forced16s + $2000      ; 3.2000-3.2FFF (4 KB)
+attic_rellabels     = attic_forced16s_end          ; 2.8000-2.8FFF (4 KB)
 attic_rellabels_end = attic_rellabels + $1000
-attic_viewer_lines = attic_rellabels_end            ; 3.3000-3.4FFF (8 KB)
+; (Gap: 2.9000-3.0000 = $7000 = 28 KB)
+attic_segments      = attic_start + $30000         ; 3.0000-3.FFFF (64 KB)
+attic_segments_end  = attic_segments + $10000
+attic_viewer_lines = attic_segments_end            ; 4.0000-4.1FFF (8 KB)
 attic_viewer_lines_end = attic_viewer_lines + $2000
-attic_viewer_buffer = attic_viewer_lines_end        ; 3.5000-3.FFFF (44 KB)
-attic_viewer_buffer_end = attic_viewer_buffer + $B000
+attic_viewer_buffer = attic_viewer_lines_end       ; 4.2000-4.FFFF (56 KB)
+attic_viewer_buffer_end = attic_viewer_buffer + $e000
 ; Save file cannot cross a bank boundary, limit 64 KB
-attic_savefile_start = attic_start + $40000        ; 4.0000-5.0000 (64 KB)
+attic_savefile_start = attic_start + $50000        ; 5.0000-5.FFFF (64 KB)
 attic_savefile_max_end = attic_savefile_start + $10000
 
 ; - Symbol table entries are 8 bytes: (name_ptr_24, flags_8, value_32)
 SYMTBL_ENTRY_SIZE = 8
-SYMTBL_MAX_ENTRIES = (attic_symbol_names-attic_symbol_table) / SYMTBL_ENTRY_SIZE
+SYMTBL_MAX_ENTRIES = (attic_symbol_table_end-attic_symbol_table) / SYMTBL_ENTRY_SIZE
 ; - Symbol is defined in the current pass; value is valid
 F_SYMTBL_DEFINED  = %00000001
 ; - Symbol was assigned a number literal with leading zeroes
@@ -2982,9 +2984,9 @@ find_or_add_symbol:
 +   ; attic_ptr is the null terminator in the symbol list
     ; Is there room for another symbol table entry here?
     phx
-    lda #<(attic_symbol_names-SYMTBL_ENTRY_SIZE)
-    ldx #>(attic_symbol_names-SYMTBL_ENTRY_SIZE)
-    ldy #^(attic_symbol_names-SYMTBL_ENTRY_SIZE)
+    lda #<(attic_symbol_table_end-SYMTBL_ENTRY_SIZE)
+    ldx #>(attic_symbol_table_end-SYMTBL_ENTRY_SIZE)
+    ldy #^(attic_symbol_table_end-SYMTBL_ENTRY_SIZE)
     ldz #$08
     cpq attic_ptr
     bne +
