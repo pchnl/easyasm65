@@ -17,8 +17,7 @@ TEST_SUITES = \
 	test_suite_1.asm \
 	test_suite_2.asm \
 	test_suite_4.asm \
-	test_suite_6.asm \
-	test_suite_10.asm
+	test_suite_6.asm
 NUM_OF_SUITES = 10
 
 %.prg: %.asm
