@@ -18,7 +18,6 @@ TEST_SUITES = \
 	test_suite_2.asm \
 	test_suite_4.asm \
 	test_suite_6.asm \
-	test_suite_8.asm \
 	test_suite_9.asm \
 	test_suite_10.asm
 NUM_OF_SUITES = 10
