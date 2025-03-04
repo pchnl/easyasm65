@@ -22,12 +22,12 @@
 
 kernal_base_page = $00
 easyasm_base_page = $1e
-execute_user_program = $1e18
+execute_user_program = $1e27
 
 ; BP map (B = $1E)
 ; 00 - ?? : EasyAsm dispatch; see easyasm-e.prg
 
-* = $100 - 74
+* = $100 - 75
 
 pass            *=*+1  ; $FF=final pass
 program_counter *=*+2
@@ -100,8 +100,11 @@ code_ptr        *=*+2   ; 16-bit pointer, CPU
 attic_ptr       *=*+4   ; 32-bit pointer, Attic
 bas_ptr         *=*+4   ; 32-bit pointer, bank 0
 
-!if * > $100 {
-    !error "Exceeded BP map; move start to earlier, if possible : ", *
+; Reserve $1eff for easyasm-e.asm and autoboot.bas
+prog_mem_dirty  *=*+1
+
+!if * != $100 {
+    !error "BP map not aligned to the end : ", *
 }
 
 dmajobs       = $58000
@@ -141,10 +144,8 @@ F_SYMTBL_LEADZERO = %00000010
 
 
 ; Other memory
-source_start = $2000  ; bank 0
-tokbuf = $7e00        ; bank 5
-strbuf = $7f00        ; bank 5
-max_end_of_program = tokbuf
+source_start = $2000
+max_end_of_program = $d6ff
 
 ; KERNAL routines
 basin = $ffcf
@@ -277,8 +278,12 @@ chr_singlequote = 39
 id_string:
     !pet "easyasm v0.2",0
 
+; 256-byte buffers for tokens and string processing
+tokbuf: !fill $100
+strbuf: !fill $100
+
 ; Initialize
-; - Assume entry conditions (B, bank 5, MAP)
+; - Assume entry conditions (EasyAsm in program memory, B=$1e)
 init:
     ; Init pointer banks
     lda #<(attic_easyasm_stash >>> 24)
@@ -1419,7 +1424,7 @@ create_files_for_segments:
     ; Set up the file
     lda #($80 | <(attic_savefile_start >>> 24)); file MB
     ldy #^attic_savefile_start
-    ldx #5  ; strbuf bank
+    ldx #$00
     +kcall setbnk
     ldx #<strbuf
     ldy #>strbuf
@@ -7667,7 +7672,7 @@ bootstrap_ml_start = source_start + 1 + bootstrap_basic_preamble_end - bootstrap
 ; Tests
 ; ---------------------------------------------------------
 
-; A test suite provides run_test_suite_cmd, run with: SYS $1E04,4
+; A test suite provides run_test_suite_cmd, run with: SYS $1E04,8
 
 !if TEST_SUITE > 0 {
     !warn "Adding test suite ", TEST_SUITE

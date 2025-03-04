@@ -38,7 +38,8 @@ attic_easyasm_stash = attic_start + $2000        ; 0.2000-0.D6FF
 attic_source_stash  = attic_start + $12000         ; 1.2000-1.D6FF
 basic_memory_size   = $d700 - $2000
 
-dmajobs       = $58000
+dmajobs        = $58000
+prog_mem_dirty = $1eff
 
 
 * = $1e00
@@ -49,18 +50,27 @@ dmajobs       = $58000
 
     ; $1E04: Run menu option A, argument X.
     pha
+
+    ; Only stash source if source memory is "clean."
+    lda prog_mem_dirty
+    bne +
     jsr stash_src
++   lda #1
+    sta prog_mem_dirty
+
     jsr sys_to_easyasm
     pla
     jsr $2000     ; EasyAsm dispatch
     lda #1
     jsr from_attic_to_src  ; Restore source.
+    lda #0
+    sta prog_mem_dirty
     lda #kernal_base_page
     tab
     rts
 
 execute_user_program:
-    ; $1E18: Execute user's program.
+    ; $1E27: Execute user's program.
     ; A/X = address
     ; Segments built and segment DMA list installed
     pha
@@ -69,8 +79,6 @@ execute_user_program:
     pla
     sta $fe
     stx $ff
-    lda #0
-    sta $d020
     jsr do_segment_dma
     jsr ($fe)
     jsr sys_to_easyasm

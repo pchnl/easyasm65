@@ -150,6 +150,16 @@ When this happens—and it will happen often—use menu option #9 to tell EasyAs
 
 Type `LIST` again to see the restored source.
 
+### An edge case about restoring source code
+
+EasyAsm stashes a copy of program memory every time it is invoked, so that it can copy itself into program memory to perform its functions. If your program exits with `RTS`, or EasyAsm exits some other way, it restores the stashed program memory containing your source code on its way out, so you can continue working.
+
+If your program does not exit with `RTS` (as above), the next time you invoke EasyAsm, it avoids stashing program memory, because program memory does not contain your source code: it contains your assembled program. It keeps track of whether it ought to stash source by remembering whether it restored source the last time it was invoked, or if it is being invoked for the first time since you booted the EasyAsm disk.
+
+This is clever in most cases, but it has a small flaw. If you assemble and test your program, interrupt the program such that it doesn't exit via `RTS`, then load new source code into program memory manually (using the `DLOAD` command, or typing `NEW` then entering a new program), the next time EasyAsm is invoked, it will get confused into thinking program memory contains the previously interrupted program and ought to be overwritten by the previously stashed source code.
+
+I have an idea on how to improve this in a later version. For now, just remember to invoke EasyAsm to restore your source code after interrupting a test run of your program.
+
 ## Breaking to the Monitor
 
 EasyAsm is designed so that you can use all of the tools available in the MEGA65 operating system as part of your development workflow. This includes the Monitor, a powerful tool for inspecting and experimenting with the state of a machine code program.

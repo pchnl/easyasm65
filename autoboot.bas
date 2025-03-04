@@ -8,4 +8,5 @@
 80 print "done";chr$(13);chr$(13);"easyasm is now in memory. press <help> for menu."
 90 print chr$(17);chr$(17);chr$(17);"edit on";chr$(145);chr$(145);chr$(145)
 100 sys $ff4a,13 : rem enqueue a return key
-110 new
+110 poke $1eff,0 : rem clear dirty flag
+120 new
