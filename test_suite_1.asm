@@ -320,7 +320,249 @@ test_find_in_token_list_9: !pet "adc+2  ",0
 }
 
 
+!macro test_expect_keyword .tnum, .tokbuf, .tokbufend, .lineaddr, .kw, .ec, .etokpos {
+    +test_start .tnum
+    ldx #.tokbufend-.tokbuf
+    dex
+-   lda .tokbuf,x
+    sta tokbuf,x
+    dex
+    bpl -
+
+    lda #0
+    sta bas_ptr+2
+    sta bas_ptr+3
+
+    lda #<.lineaddr
+    sta line_addr
+    lda #>.lineaddr
+    sta line_addr+1
+    ldx #0
+    stx tok_pos
+    ldx #<.kw
+    ldy #>.kw
+    jsr expect_keyword
+!if .ec {
+    bcs +
+    brk
++   ldx tok_pos
+    beq +
+    brk
++
+} else {
+    bcc +
+    brk
++   ldx tok_pos
+    cpx #.etokpos
+    beq +
+    brk
++
+}
+    +test_end
+}
+
+test_expect_keyword_1: !byte 0, $ff
+test_expect_keyword_2: !byte tk_label_or_reg, 2, 3, 0, $ff
+test_expect_keyword_end:
+test_expect_keyword_line_1: !pet "5 xor 7",0
+test_expect_keyword_line_2: !pet "5 XoR 7",0
+test_expect_keyword_line_3: !pet "5 ror 7",0
+
+!macro test_expect_oppop .tnum, .isop, .tokbuf, .tokbufend, .ec, .etokpos, .ea, .ey {
+    +test_start .tnum
+    ldx #.tokbufend-.tokbuf
+    dex
+-   lda .tokbuf,x
+    sta tokbuf,x
+    dex
+    bpl -
+
+    ldx #0
+    stx tok_pos
+!if .isop {
+    jsr expect_opcode
+} else {
+    jsr expect_pseudoop
+}
+!if .ec {
+    bcs +
+    brk
++   ldx tok_pos
+    beq +
+    brk
++
+} else {
+    bcc +
+    brk
++   cmp #.ea
+    beq +
+    brk
++   ldx tok_pos
+    cpx #.etokpos
+    beq +
+    brk
++
+!if .isop {
+    cpy #.ey
+    beq +
+    brk
++
+}
+}
+
+    +test_end
+}
+!macro test_expect_opcode .tnum, .tokbuf, .tokbufend, .ec, .etokpos, .ea, .ey {
+    +test_expect_oppop .tnum, 1, .tokbuf, .tokbufend, .ec, .etokpos, .ea, .ey
+}
+!macro test_expect_pseudoop .tnum, .tokbuf, .tokbufend, .ec, .etokpos, .ea {
+    +test_expect_oppop .tnum, 0, .tokbuf, .tokbufend, .ec, .etokpos, .ea, 0
+}
+
+test_expect_oppop_1: !byte 0, $ff
+test_expect_oppop_2: !byte 1, 4, 0, 0, $ff
+test_expect_oppop_3: !byte po_to, 4, 0, $ff
+test_expect_oppop_4: !byte 1, 4, F_ASM_FORCE16, 0, $ff
+test_expect_oppop_end:
+
+!macro test_expect_literal .tnum, .tokbuf, .tokbufend, .ec, .etokpos, .eresult, .eflags {
+    +test_start .tnum
+    ldx #.tokbufend-.tokbuf
+    dex
+-   lda .tokbuf,x
+    sta tokbuf,x
+    dex
+    bpl -
+
+    ldx #0
+    stx tok_pos
+    lda #0
+    sta expr_flags
+    jsr expect_literal
+
+!if .ec {
+    +assert_cs test_msg_ecs
+    ldx tok_pos
+    +assert_eq test_msg_wrong_tokpos
+} else {
+    +assert_cc test_msg_ecc
+    lda expr_result
+    cmp #<.eresult
+    +assert_eq test_msg_wrong_result
+    lda expr_result+1
+    cmp #>.eresult
+    +assert_eq test_msg_wrong_result
+    lda expr_result+2
+    cmp #^.eresult
+    +assert_eq test_msg_wrong_result
+    lda expr_result+3
+    cmp #<(.eresult >>> 24)
+    +assert_eq test_msg_wrong_result
+    lda expr_flags
+    cmp #.eflags
+    +assert_eq test_msg_wrong_flags
+}
+
+    +test_end
+}
+
+test_expect_literal_1: !byte 0, $ff
+test_expect_literal_2: !byte tk_number_literal, 6, $dd, $cc, $bb, $aa, 0, $ff
+test_expect_literal_3: !byte tk_number_literal_leading_zero, 6, $dd, $cc, $bb, $aa, 0, $ff
+test_expect_literal_end:
+
+
+!macro test_expect_pms .tnum, .tokbuf, .tokbufend, .ec, .etok, .elen {
+    +test_start .tnum
+
+    ldx #.tokbufend-.tokbuf
+    dex
+-   lda .tokbuf,x
+    sta tokbuf,x
+    dex
+    bpl -
+
+    ldx #0
+    stx tok_pos
+    jsr expect_pluses_or_minuses
+
+!if .ec {
+    +assert_cs test_msg_ecs
+    ldx tok_pos
+    +assert_eq test_msg_wrong_tokpos
+} else {
+    +assert_cc test_msg_ecc
+    cmp #.etok
+    +assert_eq test_msg_wrong_result
+    cpy #.elen
+    +assert_eq test_msg_wrong_value
+}
+
+    +test_end
+}
+
+!macro test_expect_p_or_m .tnum, .tokbuf, .tokbufend, .ec, .etok {
+    +test_start .tnum
+
+    ldx #.tokbufend-.tokbuf
+    dex
+-   lda .tokbuf,x
+    sta tokbuf,x
+    dex
+    bpl -
+
+    ldx #0
+    stx tok_pos
+    jsr expect_single_plus_or_minus
+
+!if .ec {
+    +assert_cs test_msg_ecs
+    ldx tok_pos
+    +assert_eq test_msg_wrong_tokpos
+} else {
+    +assert_cc test_msg_ecc
+    cmp #.etok
+    +assert_eq test_msg_wrong_result
+}
+
+    +test_end
+}
+
+!macro test_expect_m .tnum, .tokbuf, .tokbufend, .ec {
+    +test_start .tnum
+
+    ldx #.tokbufend-.tokbuf
+    dex
+-   lda .tokbuf,x
+    sta tokbuf,x
+    dex
+    bpl -
+
+    ldx #0
+    stx tok_pos
+    jsr expect_single_minus
+
+!if .ec {
+    +assert_cs test_msg_ecs
+    ldx tok_pos
+    +assert_eq test_msg_wrong_tokpos
+} else {
+    +assert_cc test_msg_ecc
+}
+
+    +test_end
+}
+
+test_expect_pms_1: !byte 0, $ff
+test_expect_pms_2: !byte tk_pluses, 0, 1, 0, $ff
+test_expect_pms_3: !byte tk_minuses, 0, 1, 0, $ff
+test_expect_pms_4: !byte tk_pluses, 0, 3, 0, $ff
+test_expect_pms_5: !byte tk_minuses, 0, 3, 0, $ff
+test_expect_pms_end
+
+
 run_test_suite_cmd:
+
     +print_strlit_line "-- test suite --"
 
     +print_chr chr_cr
@@ -447,6 +689,50 @@ run_test_suite_cmd:
     +test_tokenize_mnemonic $07, test_find_in_token_list_7, 1, 1, mnemonic_adc, 4, 0
     +test_tokenize_mnemonic $08, test_find_in_token_list_8, 0, 1, mnemonic_adc, 5, F_ASM_FORCE8
     +test_tokenize_mnemonic $09, test_find_in_token_list_9, 0, 1, mnemonic_adc, 5, F_ASM_FORCE16
+
+    +print_chr chr_cr
+    +print_strlit_line "test-expect-keyword"
+    +test_expect_keyword $01, test_expect_keyword_1, test_expect_keyword_2, test_expect_keyword_line_1, kw_xor, 1, 0
+    +test_expect_keyword $02, test_expect_keyword_2, test_expect_keyword_end, test_expect_keyword_line_1, kw_xor, 0, 3
+    +test_expect_keyword $03, test_expect_keyword_2, test_expect_keyword_end, test_expect_keyword_line_2, kw_xor, 0, 3
+    +test_expect_keyword $04, test_expect_keyword_2, test_expect_keyword_end, test_expect_keyword_line_3, kw_xor, 1, 0
+
+    +print_chr chr_cr
+    +print_strlit_line "test-expect-opcode"
+    ; .tnum, .tokbuf, .tokbufend, .ec, .etokpos, .ea
+    +test_expect_opcode $01, test_expect_oppop_1, test_expect_oppop_2, 1, 0, 0, 0
+    +test_expect_opcode $02, test_expect_oppop_2, test_expect_oppop_3, 0, 3, 1, 0
+    +test_expect_opcode $03, test_expect_oppop_3, test_expect_oppop_4, 1, 0, 0, 0
+    +test_expect_opcode $04, test_expect_oppop_4, test_expect_oppop_end, 0, 3, 1, F_ASM_FORCE16
+
+    +print_chr chr_cr
+    +print_strlit_line "test-expect-pseudoop"
+    +test_expect_pseudoop $01, test_expect_oppop_1, test_expect_oppop_2, 1, 0, 0
+    +test_expect_pseudoop $02, test_expect_oppop_2, test_expect_oppop_3, 1, 0, 0
+    +test_expect_pseudoop $03, test_expect_oppop_3, test_expect_oppop_end, 0, 2, po_to
+
+    +print_chr chr_cr
+    +print_strlit_line "test-expect-literal"
+    +test_expect_literal $01, test_expect_literal_1, test_expect_literal_2, 1, 0, 0, 0
+    +test_expect_literal $02, test_expect_literal_2, test_expect_literal_3, 0, 6, $aabbccdd, 0
+    +test_expect_literal $03, test_expect_literal_3, test_expect_literal_end, 0, 6, $aabbccdd, F_EXPR_FORCE16
+
+    +print_chr chr_cr
+    +print_strlit_line "test-expect-pluses-or-minuses"
+    +test_expect_pms $01, test_expect_pms_1, test_expect_pms_2, 1, 0, 0
+    +test_expect_pms $02, test_expect_pms_2, test_expect_pms_3, 0, tk_pluses, 1
+    +test_expect_pms $03, test_expect_pms_3, test_expect_pms_4, 0, tk_minuses, 1
+    +test_expect_p_or_m $04, test_expect_pms_2, test_expect_pms_3, 0, tk_pluses
+    +test_expect_p_or_m $05, test_expect_pms_3, test_expect_pms_4, 0, tk_minuses
+    +test_expect_p_or_m $06, test_expect_pms_4, test_expect_pms_5, 1, 0
+    +test_expect_p_or_m $07, test_expect_pms_5, test_expect_pms_end, 1, 0
+    +test_expect_m $08, test_expect_pms_1, test_expect_pms_2, 1
+    +test_expect_m $09, test_expect_pms_2, test_expect_pms_3, 1
+    +test_expect_m $0A, test_expect_pms_3, test_expect_pms_4, 0
+    +test_expect_m $0B, test_expect_pms_4, test_expect_pms_5, 1
+    +test_expect_m $0C, test_expect_pms_5, test_expect_pms_end, 1
+
+    ; -----------------------------------
 
     +print_chr chr_cr
     +print_strlit_line "-- all tests passed --"
