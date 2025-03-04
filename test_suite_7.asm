@@ -8,10 +8,8 @@
     sta err_code
     jsr init_pass
 
-    ; Fake assembly location in bank 5
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
     lda #<(.line_addr)  ; (test data will provide bytes 0-3 this time)
     sta line_addr

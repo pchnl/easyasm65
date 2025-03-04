@@ -95,14 +95,12 @@ test_set_up_symbol_data:
 
     jsr test_set_up_symbol_data
 
-    ; Fake assembly location in bank 5
     lda #<.str
     sta bas_ptr
     lda #>.str
     sta bas_ptr+1
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
 
     ldx #.length
@@ -151,14 +149,12 @@ test_find_symbol_7: !pet "GAMMB",0
 
     jsr test_set_up_symbol_data
 
-    ; Fake assembly location in bank 5
     lda #<.str
     sta bas_ptr
     lda #>.str
     sta bas_ptr+1
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
 
     ldx #.length
@@ -193,14 +189,12 @@ test_find_symbol_7: !pet "GAMMB",0
 
     jsr test_set_up_symbol_data
 
-    ; Fake assembly location in bank 5
     lda #<.str
     sta bas_ptr
     lda #>.str
     sta bas_ptr+1
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
 
     ldx #.length
@@ -237,14 +231,12 @@ test_find_symbol_7: !pet "GAMMB",0
 
     jsr test_set_up_symbol_data
 
-    ; Fake assembly location in bank 5
     lda #<.str
     sta bas_ptr
     lda #>.str
     sta bas_ptr+1
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
 
     ldx #.length

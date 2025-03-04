@@ -7,10 +7,8 @@
     and #!(F_ASM_FORCE_MASK | F_ASM_AREL_MASK)
     sta asm_flags
 
-    ; Fake assembly location in bank 5
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
     lda #<(.str - 4)
     sta line_addr

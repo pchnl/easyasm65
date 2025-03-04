@@ -7,10 +7,8 @@
     dex
     bpl -
 
-    ; Fake assembly location in bank 5
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
 
     lda #<.lineaddr
@@ -244,10 +242,8 @@ test_expect_pms_end
 !macro start_test_expect_expr .pass {
     jsr init_symbol_table
 
-    ; Fake assembly location in bank 5
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
 
     sta err_code
@@ -460,10 +456,8 @@ test_tokenize_other_6: !pet "ident", 0
 !macro test_load_line_to_strbuf .tnum, .str, .estr {
     +test_start .tnum
 
-    ; Fake assembly location in bank 5
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
     lda #<(.str - 4)
     sta line_addr

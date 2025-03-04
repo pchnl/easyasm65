@@ -25,10 +25,8 @@
 !macro start_test_expect_expr .pass {
     jsr init_symbol_table
 
-    ; Fake assembly location in bank 5
-    lda #5
-    sta bas_ptr+2
     lda #0
+    sta bas_ptr+2
     sta bas_ptr+3
 
     sta err_code
@@ -203,24 +201,23 @@ tee_line_4: !pet "$f0f0f0f0 xor $ccaaccaa"
 }
 
 test_pcs: !word $0010, $0020, $0030, $0040, $0050, $0060
-test_pcs5 = test_pcs + $50000
-test_seglist_sorted: !32 test_pcs5, test_pcs5+2, test_pcs5+4, test_pcs5+6, test_pcs5+8, test_pcs5+10
+test_seglist_sorted: !32 test_pcs, test_pcs+2, test_pcs+4, test_pcs+6, test_pcs+8, test_pcs+10
 test_seglist_sorted_end:
-test_seglist_one_swap: !32 test_pcs5, test_pcs5+6, test_pcs5+4, test_pcs5+2, test_pcs5+8, test_pcs5+10
+test_seglist_one_swap: !32 test_pcs, test_pcs+6, test_pcs+4, test_pcs+2, test_pcs+8, test_pcs+10
 test_seglist_one_swap_end:
-test_seglist_merge: !32 test_pcs5, test_pcs5+4, test_pcs5+10, test_pcs5+2, test_pcs5+6, test_pcs5+8
+test_seglist_merge: !32 test_pcs, test_pcs+4, test_pcs+10, test_pcs+2, test_pcs+6, test_pcs+8
 test_seglist_merge_end:
-test_seglist_reversed: !32 test_pcs5+10, test_pcs5+8, test_pcs5+6, test_pcs5+4, test_pcs5+2, test_pcs5
+test_seglist_reversed: !32 test_pcs+10, test_pcs+8, test_pcs+6, test_pcs+4, test_pcs+2, test_pcs
 test_seglist_reversed_end:
-test_seglist_mixed_6: !32 test_pcs5+6, test_pcs5+2, test_pcs5+8, test_pcs5+10, test_pcs5, test_pcs5+4
+test_seglist_mixed_6: !32 test_pcs+6, test_pcs+2, test_pcs+8, test_pcs+10, test_pcs, test_pcs+4
 test_seglist_mixed_6_end:
-test_seglist_mixed_2: !32 test_pcs5+6, test_pcs5+2
+test_seglist_mixed_2: !32 test_pcs+6, test_pcs+2
 test_seglist_mixed_2_end:
-test_seglist_mixed_2_result: !32 test_pcs5+2, test_pcs5+6
+test_seglist_mixed_2_result: !32 test_pcs+2, test_pcs+6
 test_seglist_mixed_2_result_end:
-test_seglist_mixed_3: !32 test_pcs5+6, test_pcs5+2, test_pcs5+8
+test_seglist_mixed_3: !32 test_pcs+6, test_pcs+2, test_pcs+8
 test_seglist_mixed_3_end:
-test_seglist_mixed_3_result: !32 test_pcs5+2, test_pcs5+6, test_pcs5+8
+test_seglist_mixed_3_result: !32 test_pcs+2, test_pcs+6, test_pcs+8
 test_seglist_mixed_3_result_end:
 
 

@@ -79,8 +79,9 @@ test_strbuf_cmp_code_ptr_abcd:     !pet "abcd",0
     sta bas_ptr
     lda #>.basptr
     sta bas_ptr+1
-    lda #$05
-    sta bas_ptr+2   ; test data in bank 5
+    lda #$00
+    sta bas_ptr+2
+    sta bas_ptr+3
     ldz #.pos
     stz line_pos
     jsr accept_whitespace_and_comment
@@ -130,8 +131,8 @@ test_accept_whitespace_and_comment_other_spaces:
     sta bas_ptr
     lda #>.basptr
     sta bas_ptr+1
-    lda #$05
-    sta bas_ptr+2   ; test data in bank 5
+    lda #$00
+    sta bas_ptr+2
     ldz #0
 !if .c {
     sec
@@ -166,8 +167,8 @@ test_accept_ident_4: !pet "!label",0
     sta bas_ptr
     lda #>.lineaddr
     sta bas_ptr+1
-    lda #$05
-    sta bas_ptr+2   ; test data in bank 5
+    lda #$00
+    sta bas_ptr+2
     ldz #0
     stz line_pos
     jsr accept_literal
