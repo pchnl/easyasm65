@@ -22,8 +22,7 @@
 
 kernal_base_page = $00
 easyasm_base_page = $1e
-execute_user_program = $1e08
-save_program = $1e1a
+execute_user_program = $1e18
 
 ; BP map (B = $1E)
 ; 00 - ?? : EasyAsm dispatch; see easyasm-e.prg
@@ -105,11 +104,13 @@ bas_ptr         *=*+4   ; 32-bit pointer, bank 0
     !error "Exceeded BP map; move start to earlier, if possible : ", *
 }
 
+dmajobs       = $58000
 
 ; Attic map
+; (Make sure this is consistent with easyasm-e.asm.)
 attic_start         = $08700000
-attic_dmajobs       = attic_start                  ; 0.0000-0.1FFF
-attic_easyasm_stash = attic_dmajobs + $2000        ; 0.2000-0.D6FF
+; (Gap: 0.0000-0.1FFF = 8 KB)
+attic_easyasm_stash = attic_start + $2000        ; 0.2000-0.D6FF
 ; (Gap: 0.D700-1.1FFF = $4900 = 18.25 KB)
 attic_source_stash  = attic_start + $12000         ; 1.2000-1.D6FF
 attic_symbol_table  = attic_source_stash + $d700   ; 1.D700-1.FFFF (10.25 KB)
@@ -159,6 +160,7 @@ readss = $ffb7
 setbnk = $ff6b
 setlfs = $ffba
 setnam = $ffbd
+save = $ffd8
 
 ; MEGA65 registers
 dmaimm   = $d707
@@ -269,7 +271,7 @@ chr_singlequote = 39
 ; Dispatch
 ; ------------------------------------------------------------
 
-* = $2000    ; Actually $52000
+* = $2000
 
     jmp dispatch
 id_string:
@@ -279,12 +281,13 @@ id_string:
 ; - Assume entry conditions (B, bank 5, MAP)
 init:
     ; Init pointer banks
-    lda #attic_easyasm_stash >> 24
+    lda #<(attic_easyasm_stash >>> 24)
     sta attic_ptr+3
-    lda #(attic_easyasm_stash >> 16) & $ff
+    lda #^attic_easyasm_stash
     sta attic_ptr+2
-    lda #$00
+    lda #<(attic_source_stash >>> 24)
     sta bas_ptr+3
+    lda #^attic_source_stash
     sta bas_ptr+2
 
     lda #0
@@ -475,13 +478,36 @@ do_warning_prompt:
     clc
     rts
 
-install_segments_to_memory:
+build_segment_dma_list:
+    ; Use attic_ptr to build the job list.
+    lda #<(dmajobs >>> 24)
+    sta attic_ptr+3
+    lda #^dmajobs
+    sta attic_ptr+2
+    lda #>dmajobs
+    sta attic_ptr+1
+    lda #<dmajobs
+    sta attic_ptr
+
     sec
     jsr start_segment_traversal
+    ; (Caller guarantees at least one segment.)
 @loop
     jsr is_end_segment_traversal
     bcc +
+    ; Terminate job list.
+    sec
+    lda attic_ptr
+    sbc #install_segments_to_memory_dma_recsize
+    sta attic_ptr
+    lda attic_ptr+1
+    sbc #0
+    sta attic_ptr+1
+    ldz #6
+    lda #0  ; copy, last job
+    sta [attic_ptr],z
     rts
+
 +   ldz #0
     ldq [current_segment]
     sta install_segments_to_memory_dma_to
@@ -502,14 +528,23 @@ install_segments_to_memory:
     and #$0f
     sta install_segments_to_memory_dma_from+2
 
-    lda #0
-    sta dmamb
-    lda #$05
-    sta dmaba
-    lda #>install_segments_to_memory_dma
-    sta dmahi
-    lda #<install_segments_to_memory_dma
-    sta dmalo_e
+    ; Copy job record to list
+    ldx #install_segments_to_memory_dma_recsize-1
+    ldz #install_segments_to_memory_dma_recsize-1
+-   lda install_segments_to_memory_dma,x
+    sta [attic_ptr],z
+    dez
+    dex
+    bpl -
+
+    ; Inc list ptr by record size
+    clc
+    lda attic_ptr
+    adc #install_segments_to_memory_dma_recsize
+    sta attic_ptr
+    lda attic_ptr+1
+    adc #0
+    sta attic_ptr+1
 
     jsr next_segment_traversal_skip_file_markers
     bra @loop
@@ -519,7 +554,7 @@ install_segments_to_memory_dma:
 !byte $81, $00
 !byte $0b
 !byte $00
-!byte $00  ; copy
+!byte $04  ; copy + continue
 install_segments_to_memory_dma_length:
 !byte $00, $00
 install_segments_to_memory_dma_from:
@@ -527,6 +562,9 @@ install_segments_to_memory_dma_from:
 install_segments_to_memory_dma_to:
 !byte $00, $00, $00
 !byte $00, $00, $00
+install_segments_to_memory_dma_end:
+install_segments_to_memory_dma_recsize = install_segments_to_memory_dma_end - install_segments_to_memory_dma
+
 
 assemble_to_memory_cmd:
     +kprimm_start
@@ -534,7 +572,6 @@ assemble_to_memory_cmd:
     +kprimm_end
 
     ; Assemble, abort on assembly error.
-    jsr stash_source
     jsr assemble_source
     lda err_code
     beq +
@@ -570,20 +607,20 @@ assemble_to_memory_cmd:
     bcc +
     rts
 
-+   jsr install_segments_to_memory
-    sec
++   sec
     jsr start_segment_traversal
     ldz #0
     ldq [current_segment]
     inz
     ora [current_segment],z
-    beq +  ; Edge case: no assembled instructions
+    beq +  ; No assembled instructions? Skip install DMA.
+    jsr build_segment_dma_list
+    jsr start_segment_traversal
     ldz #0
     ldq [current_segment]
     jsr execute_user_program  ; A/X = PC
 +
 
-    jsr restore_source
     +kprimm_start
     !pet 13,"# program returned, source restored",13,0
     +kprimm_end
@@ -605,7 +642,6 @@ view_annotated_source_cmd:
     +kprimm_end
 
     ; Assemble, abort on assembly error.
-    jsr stash_source
     jsr assemble_source
     lda err_code
     beq +
@@ -637,7 +673,6 @@ view_symbol_list_cmd:
     +kprimm_end
 
     ; Assemble, abort on assembly error.
-    jsr stash_source
     jsr assemble_source
     lda err_code
     beq +
@@ -1047,9 +1082,8 @@ append_zero_fill:
     sta append_zero_fill_length+1
 
     lda #$00
-    sta dmamb
-    lda #$05
     sta dmaba
+    sta dmamb
     lda #>append_zero_fill_dma
     sta dmahi
     lda #<append_zero_fill_dma
@@ -1114,9 +1148,8 @@ append_to_save_file:
     sta append_to_save_file_dest+2
 
     lda #$00
-    sta dmamb
-    lda #$05
     sta dmaba
+    sta dmamb
     lda #>append_to_save_file_dma
     sta dmahi
     lda #<append_to_save_file_dma
@@ -1161,7 +1194,7 @@ write_file_to_attic:
 
     lda #^attic_savefile_start
     sta attic_ptr+2
-    lda #<(attic_savefile_start >> 24)
+    lda #<(attic_savefile_start >>> 24)
     sta attic_ptr+3
 
     ldz #9
@@ -1189,7 +1222,7 @@ write_file_to_attic:
     ; Write the runnable bootstrap.
     lda #<bootstrap_basic_preamble
     ldx #>bootstrap_basic_preamble
-    ldy #$05
+    ldy #$00
     ldz #$00
     stq expr_result
     lda #<(bootstrap_basic_preamble_end-bootstrap_basic_preamble)
@@ -1384,7 +1417,7 @@ create_files_for_segments:
     bne -
 
     ; Set up the file
-    lda #($80 | <(attic_savefile_start >> 24)); file MB
+    lda #($80 | <(attic_savefile_start >>> 24)); file MB
     ldy #^attic_savefile_start
     ldx #5  ; strbuf bank
     +kcall setbnk
@@ -1426,7 +1459,7 @@ create_files_for_segments:
     ; X/Y = 16-bit end address + 1
 ++  ldx attic_ptr
     ldy attic_ptr+1
-    jsr save_program
+    +kcall save
     bcs @kernal_disk_error
 
     ; There might be a drive error at this point. Reading it would require
@@ -1471,7 +1504,6 @@ assemble_to_disk_cmd:
     +kprimm_end
 
     ; Assemble, abort on assembly error.
-    jsr stash_source
     jsr assemble_source
     lda err_code
     lbne @assemble_to_disk_error
@@ -1511,37 +1543,11 @@ assemble_to_disk_cmd:
 ; ------------------------------------------------------------
 
 restore_source_cmd:
-    jsr restore_source
+    ; Actually do nothing. Allow 1e00 dispatch to restore source.
 
     +kprimm_start
     !pet 13,"# source restored",13,0
     +kprimm_end
-
-    rts
-
-
-stash_source:
-    sta dmaimm
-    !byte $80, $00
-    !byte $81, attic_source_stash >> 20
-    !byte $0b, $00
-    !byte $00, $00, $d7
-    !byte <source_start, >source_start, $00
-    !byte <attic_source_stash, >attic_source_stash, (attic_source_stash >> 16) & $0f
-    !byte $00, $00, $00
-
-    rts
-
-
-restore_source:
-    sta dmaimm
-    !byte $80, attic_source_stash >> 20
-    !byte $81, $00
-    !byte $0b, $00
-    !byte $00, $00, $d7
-    !byte <attic_source_stash, >attic_source_stash, (attic_source_stash >> 16) & $0f
-    !byte <source_start, >source_start, $00
-    !byte $00, $00, $00
 
     rts
 
@@ -1551,7 +1557,7 @@ restore_source:
 ; ------------------------------------------------------------
 
 ; Print a C-style string
-; Input: X/Y address (bank 5)
+; Input: X/Y address (bank 0)
 print_cstr:
     ; Manage B manually, for speed
     lda #kernal_base_page
@@ -1559,9 +1565,8 @@ print_cstr:
 
     stx $fc   ; B=0
     sty $fd
-    lda #$05
-    sta $fe
     lda #$00
+    sta $fe
     sta $ff
 
 -   ldz #0
@@ -5147,18 +5152,24 @@ find_or_add_label:
     dey
     bne -
 
+    ; bas_ptr = strbuf; call find_or_add_symbol
     lda #<strbuf
     sta bas_ptr
     lda #>strbuf
     sta bas_ptr+1
     lda bas_ptr+2
     pha
-    lda #5
+    lda bas_ptr+3
+    pha
+    lda #0
     sta bas_ptr+2
+    sta bas_ptr+3
     ; X = new length (text added to strbuf)
     jsr find_or_add_symbol
     pla
-    sta bas_ptr+2  ; Important! reset bas_ptr bank to 0
+    sta bas_ptr+3  ; Important! restore bas_ptr
+    pla
+    sta bas_ptr+2
     rts
 
 

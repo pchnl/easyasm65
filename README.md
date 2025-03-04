@@ -249,7 +249,7 @@ EasyAsm tries to maintain a minimal memory footprint while you are editing your 
 Of course, EasyAsm has to live somewhere. This is what EasyAsm needs:
 
 * EasyAsm reserves the memory ranges **$1E00-$1EFF** (256 bytes of bank 0) and **$8700000-$87FFFFF** (1 megabyte of Attic RAM). If your program overwrites any of this memory, you will need to reload EasyAsm, and any stashed source code data may not be recoverable.
-* EasyAsm reserves the right to overwrite **$50000-$5FFFF** (all 64KB of bank 5) when you invoke EasyAsm. Your program can use this memory while it is running, but the state of this memory may change when EasyAsm is running. Overwriting this memory may inhibit EasyAsm's ability to return to the `OK` prompt on `rts`.
+* EasyAsm reserves the right to overwrite **$50000-$5FFFF** (all 64KB of bank 5) when you invoke EasyAsm. Your program can use this memory while it is running, but the state of this memory may change when EasyAsm is running.
 
 EasyAsm will refuse to assemble to addresses $1E00-$1EFF when assembling to memory, or when assembling a "runnable" program to disk (because the bootstrap routine may use it). This restriction does not apply when assembling to disk in "cbm" mode.
 
@@ -257,9 +257,9 @@ EasyAsm uses program memory ($2001-$F6FF) in three ways:
 
 1. When you `BOOT` the EasyAsm disk at the start of a session, it overwrites program memory with its installer code. After it is installed, it clears program memory.
 2. While you are editing source code in Edit mode, your source code occupies program memory. EasyAsm expects to find it there when you invoke the assembler.
-3. To test your program, EasyAsm stashes the source code into Attic RAM, assembles the program to machine code, and installs your machine code in program memory. It runs from this location, as it would when a user loads and runs your program. If the program exits with `rts`, EasyAsm copies the source code back into program memory (overwriting the assembled program) and restores the editing environment.
+3. To test your program, EasyAsm stashes the source code into Attic RAM, copies itself (the assembler) to program memory, assembles the source code to machine code, then installs your machine code in program memory. It runs from this location, as it would when a user loads and runs your program. If the program exits with `rts`, EasyAsm copies the source code back into program memory (overwriting the assembled program) and restores the editing environment.
 
-> **Note:** EasyAsm keeps its own code in Attic RAM while not in use, and copies itself to bank 5 when performing operations. Attic RAM is not included in MEGA65 Freezer states. It is safe to use the Freezer during an EasyAsm session, but if you start a new session restored from a freeze state, you must run the EasyAsm installer again.
+> **Note:** EasyAsm keeps its own code in Attic RAM while not in use. Attic RAM is not included in MEGA65 Freezer states. It is safe to use the Freezer during an EasyAsm session, but if you start a new session restored from a freeze state, you must run the EasyAsm installer again.
 
 
 ## Assembly language syntax

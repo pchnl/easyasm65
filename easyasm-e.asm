@@ -24,106 +24,114 @@
 ; Set EXPECTED_END_OF_DISPATCH according to BP variables declared in
 ; easyasm.asm. (On error, it may be able to raise this limit, just
 ; check easyasm.asm first.)
-EXPECTED_END_OF_DISPATCH = $1e9f
+; EXPECTED_END_OF_DISPATCH = $1e94
+EXPECTED_END_OF_DISPATCH = $1eff
 
-save = $ffd8
+kernal_base_page = $00
+easyasm_base_page = $1e
+
+; Attic map
+; (Make sure this is consistent with easyasm.asm.)
+attic_start         = $08700000
+attic_easyasm_stash = attic_start + $2000        ; 0.2000-0.D6FF
+; (Gap: 0.D700-1.1FFF = $4900 = 18.25 KB)
+attic_source_stash  = attic_start + $12000         ; 1.2000-1.D6FF
+basic_memory_size   = $d700 - $2000
+
+dmajobs       = $58000
+
 
 * = $1e00
 
     ; $1E00: Launch menu.
     lda #$00
     ldx #$00
+
     ; $1E04: Run menu option A, argument X.
     pha
-    phx
-    bra install
-    ; $1E08: Execute user's program.
-    ; A/X = address
+    jsr stash_src
+    jsr sys_to_easyasm
+    pla
+    jsr $2000     ; EasyAsm dispatch
+    lda #1
+    jsr from_attic_to_src  ; Restore source.
+    lda #kernal_base_page
+    tab
+    rts
+
 execute_user_program:
-    sta user_address
-    stx user_address+1
-    jsr easyasm_to_sys
-    jsr (user_address)
-    jsr sys_to_easyasm
-    rts
-user_address: !byte $00, $00
-    ; $1E1A: Save user's program.
-    ; SETBNK, SETNAM, SETLFS already called
-    ; $00fe-00ff: start address (16-bit), in data bank
-    ; X/Y: end address (16-bit), in data bank
-    phx
-    phy
-    jsr easyasm_to_sys
-    ply
-    plx
-    lda #$fe
-    jsr save
+    ; $1E18: Execute user's program.
+    ; A/X = address
+    ; Segments built and segment DMA list installed
     pha
-    jsr sys_to_easyasm
+    lda #kernal_base_page
+    tab
     pla
+    sta $fe
+    stx $ff
+    lda #0
+    sta $d020
+    jsr do_segment_dma
+    jsr ($fe)
+    jsr sys_to_easyasm
     rts
 
-install:
-    ; Copy EasyAsm from $8702000 to $52000
-    lda #0
-    sta $d704
-    lda #^install_dma
+do_segment_dma:
+    lda #^dmajobs
     sta $d702
-    lda #>install_dma
+    lda #dmajobs >> 24
+    sta $d704
+    lda #>dmajobs
     sta $d701
-    lda #<install_dma
+    lda #<dmajobs
     sta $d705
-
-    jsr sys_to_easyasm
-
-    plx
-    pla
-    jsr $2000     ; $52000, EasyAsm dispatch
-
-    jsr easyasm_to_sys
     rts
 
 sys_to_easyasm:
-    ; MAP $2000-$7FFF to bank 5
-    ; Keep KERNAL in $E000-$FFFF
-    lda #$00
-    ldx #$0f
-    ldy #$00
-    ldz #$0f
-    map
-    lda #$00
-    ldx #$E5
-    ldy #$00
-    ldz #$83
-    map
-    eom
-
-    ; Set B = $1Exx
-    lda #$1e
+    lda #0
+    jsr from_attic_to_src
+    lda #easyasm_base_page
     tab
     rts
 
-easyasm_to_sys:
-    ; Restore the SYS map
-    lda #$00
-    ldx #$E0
-    ldy #$00
-    ldz #$83
-    map
-    eom
+from_attic_to_src:
+    ; Input: A: $00=EasyAsm $01=Stashed source
+    sta src_dma+11
+    lda #0
+    sta src_dma+3
+    sta src_dma+14
+    lda #$87
+    sta src_dma+1
 
-    ; Restore B.
-    lda #$00
-    tab
+do_src_dma:
+    lda #0
+    sta $d704
+    lda #^src_dma
+    sta $d702
+    lda #>src_dma
+    sta $d701
+    lda #<src_dma
+    sta $d705
     rts
 
-install_dma:
+stash_src:
+    lda #1
+    sta src_dma+14
+    lda #0
+    sta src_dma+1
+    sta src_dma+11
+    lda #$87
+    sta src_dma+3
+    bra do_src_dma
+
+src_dma:
     !byte $80, $87       ; src mb  = $(0)87
     !byte $81, $00       ; dest mb = $(0)00
     !byte $0b, $00
-    !byte $00, $00, $B7  ; $B700 bytes
+    !byte $00            ; copy
+    !byte <basic_memory_size, >basic_memory_size  ; size
     !byte $00, $20, $00  ; src  $(087)02000
-    !byte $00, $20, $05  ; dest $(000)52000
+    !byte $00, $20, $00  ; dest $(000)02000
     !byte $00, $00, $00
 
 
