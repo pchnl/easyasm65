@@ -35,8 +35,7 @@
 !macro test_expect_expr .tnum, .tname, .tokbuf, .tokbufend, .lineaddr, .ec, .etokpos, .eresult, .eflags {
     +test_start .tnum
 
-    +print_chr chr_spc
-    +print_strlit .tname
+    +print_strlit_wspc .tname
 
     ldx #.tokbufend-.tokbuf
     dex
@@ -346,8 +345,7 @@ run_test_suite_cmd:
 
     +print_strlit_line "-- test suite --"
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expr"
+    +print_strlit_line_wspc "test-expr"
 
     +start_test_expect_expr 0
     +test_expect_expr $01, "empty", tee_tb_1, tee_tb_2, tee_line_1, 1, 0, 0, 0
@@ -426,8 +424,7 @@ run_test_suite_cmd:
     +test_expect_expr $2C, "remainder c", tee_tb_40, tee_tb_41, tee_line_1, 0, 14, 7 % 7, 0
     +test_expect_expr $2D, "remainder d", tee_tb_41, tee_tb_end, tee_line_1, 0, 14, 8 % 7, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "tokenize-pseudoop"
+    +print_strlit_line_wspc "tokenize-pseudoop"
     +test_tokenize_pseudoop $01, test_tokenize_pseudoop_1, 0, 1, po_to, 3
     +test_tokenize_pseudoop $02, test_tokenize_pseudoop_2, 0, 1, po_byte, 5
     +test_tokenize_pseudoop $03, test_tokenize_pseudoop_3, 0, 1, po_warn, 5
@@ -436,8 +433,7 @@ run_test_suite_cmd:
     +test_tokenize_pseudoop $06, test_tokenize_pseudoop_6, 1, 1, po_to, 4
     +test_tokenize_pseudoop $07, test_tokenize_pseudoop_7, 0, 0, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "tokenize-pluses-and-minuses"
+    +print_strlit_line_wspc "tokenize-pluses-and-minuses"
     ; .tnum, .str, .pos, .ec, .etoken, .epos, .elen
     +test_tokenize_pluses_and_minuses $01, test_tokenize_pluses_and_minuses_1, 0, 1, tk_pluses, 0, 1
     +test_tokenize_pluses_and_minuses $02, test_tokenize_pluses_and_minuses_2, 0, 1, tk_minuses, 0, 1
@@ -445,8 +441,7 @@ run_test_suite_cmd:
     +test_tokenize_pluses_and_minuses $04, test_tokenize_pluses_and_minuses_4, 0, 1, tk_minuses, 0, 3
     +test_tokenize_pluses_and_minuses $05, test_tokenize_pluses_and_minuses_5, 0, 1, tk_minuses, 0, 1
 
-    +print_chr chr_cr
-    +print_strlit_line "tokenize-other"
+    +print_strlit_line_wspc "tokenize-other"
     +test_tokenize_other $01, test_tokenize_other_1, 0, 1, tk_complement, 1
     +test_tokenize_other $02, test_tokenize_other_2, 0, 1, tk_power, 1
     +test_tokenize_other $03, test_tokenize_other_3, 0, 1, tk_lsr, 3
@@ -454,13 +449,11 @@ run_test_suite_cmd:
     +test_tokenize_other $05, test_tokenize_other_5, 0, 1, tk_rbracket, 1
     +test_tokenize_other $06, test_tokenize_other_6, 0, 0, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "tokenize-load-line-to-strbuf"
+    +print_strlit_line_wspc "tokenize-load-line-to-strbuf"
     +test_load_line_to_strbuf $01, test_load_line_to_strbuf_1e, test_load_line_to_strbuf_1e
     +test_load_line_to_strbuf $02, test_load_line_to_strbuf_1, test_load_line_to_strbuf_1e
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-addressing-expr"
+    +print_strlit_line_wspc "test-expect-addressing-expr"
     ; .tnum, .str, .ec, .emode, .eresult, .eflags, .etokpos, .eerror, .eerror_pos
     +test_expect_addressing_expr $01, test_expect_addressing_expr_1, 0, MODE_IMPLIED, 0, 0, 3, 0, 0
     +test_expect_addressing_expr $02, test_expect_addressing_expr_2, 0, MODE_IMPLIED, 0, 0, 3, 0, 0
@@ -485,6 +478,5 @@ run_test_suite_cmd:
     +test_expect_addressing_expr $14, test_expect_addressing_expr_20, 0, MODE_STACK_REL, 4, 0, 23, 0, 0
 
 
-    +print_chr chr_cr
-    +print_strlit_line "-- all tests passed --"
+    +print_strlit_line_wspc "-- all tests passed --"
     rts

@@ -291,8 +291,7 @@ test_assemble_line_18: !pet "!8 1,2,3",0
 test_assemble_line_19: !pet "label problem",0
 
 
-    +print_chr chr_cr
-    +print_strlit_line "accept-label-mnemonic-pseudoop"
+    +print_strlit_line_wspc "accept-label-mnemonic-pseudoop"
     +test_accept_label_mnemonic_pseudoop $01, test_accept_ident_1, 0, 1, 5
     +test_accept_label_mnemonic_pseudoop $02, test_accept_ident_2, 0, 1, 10
     +test_accept_label_mnemonic_pseudoop $03, test_accept_ident_3, 0, 0, 0
@@ -307,27 +306,23 @@ test_assemble_line_19: !pet "label problem",0
     +test_accept_label_mnemonic_pseudoop $0B, test_accept_ident_11, 0, 1, 4
     +test_accept_label_mnemonic_pseudoop $0C, test_accept_ident_12, 1, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "code-to-strbuf"
+    +print_strlit_line_wspc "code-to-strbuf"
     +test_code_to_strbuf $01, test_accept_whitespace_and_comment_comment, 4, 37, test_accept_whitespace_and_comment_comment+4, 37
 
-    +print_chr chr_cr
-    +print_strlit_line "get-mnemonic-for-strbuf"
+    +print_strlit_line_wspc "get-mnemonic-for-strbuf"
     +test_get_mnemonic_for_strbuf $01, test_get_mnemonic_for_strbuf_1, 1, mnemonics+(45*8)
     +test_get_mnemonic_for_strbuf $02, test_get_mnemonic_for_strbuf_2, 1, mnemonics
     +test_get_mnemonic_for_strbuf $03, test_get_mnemonic_for_strbuf_3, 0, 0
     +test_get_mnemonic_for_strbuf $04, test_get_mnemonic_for_strbuf_4, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "get-pseudoop-for-strbuf"
+    +print_strlit_line_wspc "get-pseudoop-for-strbuf"
     +test_get_pseudoop_for_strbuf $01, test_get_pseudoop_for_strbuf_1, 1, 1
     +test_get_pseudoop_for_strbuf $02, test_get_pseudoop_for_strbuf_2, 1, 12
     +test_get_pseudoop_for_strbuf $03, test_get_pseudoop_for_strbuf_3, 1, 3
     +test_get_pseudoop_for_strbuf $04, test_get_pseudoop_for_strbuf_4, 0, 0
     +test_get_pseudoop_for_strbuf $05, test_get_pseudoop_for_strbuf_5, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "accept-addressing-operand"
+    +print_strlit_line_wspc "accept-addressing-operand"
                                                                         ;  C  R  X    Y  L
     +test_accept_addressing_operand $01, test_accept_addressing_operand_1, 1, 0, 128, 0, 3
     +test_accept_addressing_operand $02, test_accept_addressing_operand_2, 1, 0, 128, 0, 0
@@ -349,8 +344,7 @@ test_assemble_line_19: !pet "label problem",0
     +test_accept_addressing_operand $10, test_accept_addressing_operand_16, 1, 255, 4, 0, 5
     +test_accept_addressing_operand $11, test_accept_addressing_operand_17, 1, 255, 4, 0, 11
 
-    +print_chr chr_cr
-    +print_strlit_line "assemble-line"
+    +print_strlit_line_wspc "assemble-line"
     +test_assemble_line $01, test_assemble_line_1, 0, 0
     +test_assemble_line $02, test_assemble_line_2, 0, 0
     +test_assemble_line $03, test_assemble_line_3, 0, 0

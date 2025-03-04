@@ -8,10 +8,21 @@
     !pet .strlit,0
     +kprimm_end
 }
+!macro print_strlit_wspc .strlit {
+    +kprimm_start
+    !pet 20,.strlit,0
+    +kprimm_end
+}
 
 !macro print_strlit_line .strlit {
     +kprimm_start
     !pet .strlit,13,0
+    +kprimm_end
+}
+
+!macro print_strlit_line_wspc .strlit {
+    +kprimm_start
+    !pet 13,.strlit,13,0
     +kprimm_end
 }
 

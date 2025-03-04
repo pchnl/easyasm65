@@ -1226,8 +1226,7 @@ run_test_suite_cmd:
 
     +print_strlit_line "-- test suite --"
 
-    +print_chr chr_cr
-    +print_strlit_line "is-letter"
+    +print_strlit_line_wspc "is-letter"
     +test_is_letter $01, 'A', 1
     +test_is_letter $02, 'B', 1
     +test_is_letter $03, 'Z', 1
@@ -1245,8 +1244,7 @@ run_test_suite_cmd:
     +test_is_letter $0F, chr_megaat, 0
     +test_is_letter $10, $e1, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "is-secondary-ident-char"
+    +print_strlit_line_wspc "is-secondary-ident-char"
     +test_is_secondary_ident_char $01, 'A', 1
     +test_is_secondary_ident_char $02, 'B', 1
     +test_is_secondary_ident_char $03, 'Z', 1
@@ -1265,14 +1263,12 @@ run_test_suite_cmd:
     +test_is_secondary_ident_char $10, $e1, 0
     +test_is_secondary_ident_char $11, '.', 1
 
-    +print_chr chr_cr
-    +print_strlit_line "strbuf-to-lowercase"
+    +print_strlit_line_wspc "strbuf-to-lowercase"
     +test_strbuf_to_lowercase $01, test_strbuf_to_lowercase_1_out, test_strbuf_to_lowercase_1_out
     +test_strbuf_to_lowercase $02, test_strbuf_to_lowercase_2_in, test_strbuf_to_lowercase_1_out
     +test_strbuf_to_lowercase $03, test_strbuf_to_lowercase_3_in, test_strbuf_to_lowercase_1_out
 
-    +print_chr chr_cr
-    +print_strlit_line "strbuf-cmp-code-ptr"
+    +print_strlit_line_wspc "strbuf-cmp-code-ptr"
     +test_strbuf_cmp_code_ptr $01, test_strbuf_cmp_code_ptr_abc, test_strbuf_cmp_code_ptr_abc, 3, $00, 3
     +test_strbuf_cmp_code_ptr $02, test_strbuf_cmp_code_ptr_abc, test_strbuf_cmp_code_ptr_abc, 6, $00, 3
     +test_strbuf_cmp_code_ptr $03, test_strbuf_cmp_code_ptr_abc, test_strbuf_cmp_code_ptr_acb, 3, $ff, 1
@@ -1280,23 +1276,20 @@ run_test_suite_cmd:
     +test_strbuf_cmp_code_ptr $05, test_strbuf_cmp_code_ptr_abc, test_strbuf_cmp_code_ptr_abcd, 4, $ff, 3
     +test_strbuf_cmp_code_ptr $06, test_strbuf_cmp_code_ptr_abcd, test_strbuf_cmp_code_ptr_abc, 4, $01, 3
 
-    +print_chr chr_cr
-    +print_strlit_line "accept-whitespace-and-comment"
+    +print_strlit_line_wspc "accept-whitespace-and-comment"
     +test_accept_whitespace_and_comment $01, test_accept_whitespace_and_comment_empty_line, 4, 4, 1
     +test_accept_whitespace_and_comment $02, test_accept_whitespace_and_comment_comment, 4, 4+test_accept_whitespace_and_comment_comment_length, 1
     +test_accept_whitespace_and_comment $03, test_accept_whitespace_and_comment_space_then_stuff, 4, 7, 0
     +test_accept_whitespace_and_comment $04, test_accept_whitespace_and_comment_other_spaces, 4, 10, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "accept-ident"
+    +print_strlit_line_wspc "accept-ident"
     +test_accept_ident $01, test_accept_ident_1, 0, 1, 5
     +test_accept_ident $02, test_accept_ident_2, 0, 1, 10
     +test_accept_ident $03, test_accept_ident_3, 0, 0, 0
     +test_accept_ident $04, test_accept_ident_4, 0, 0, 0
     +test_accept_ident $05, test_accept_ident_4, 1, 1, 6
 
-    +print_chr chr_cr
-    +print_strlit_line "accept-literal"
+    +print_strlit_line_wspc "accept-literal"
     +test_accept_literal $01, test_accept_literal_1, 1, 88, 3, 0
     +test_accept_literal $02, test_accept_literal_2, 1, '\'', 3, 0
     +test_accept_literal $03, test_accept_literal_3, 1, $0, 2, 1
@@ -1326,8 +1319,7 @@ run_test_suite_cmd:
     +test_accept_literal $1b, test_accept_literal_27, 1, 56, 2, 0
     +test_accept_literal $1c, test_accept_literal_28, 0, 0, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "find-in-token-list"
+    +print_strlit_line_wspc "find-in-token-list"
     +test_find_in_token_list $01, test_find_in_token_list_1, 0, 1, 1, mnemonic_adc, 3
     +test_find_in_token_list $02, test_find_in_token_list_2, 0, 1, 1, mnemonic_adcq, 4
     +test_find_in_token_list $03, test_find_in_token_list_3, 0, 1, 1, mnemonic_tza, 3
@@ -1338,8 +1330,7 @@ run_test_suite_cmd:
     +test_find_in_token_list $08, test_find_in_token_list_6, 0, 1, 1, mnemonic_adc, 3
     +test_find_in_token_list $09, test_find_in_token_list_7, 1, 1, 1, mnemonic_adc, 4
 
-    +print_chr chr_cr
-    +print_strlit_line "tokenize-mnemonic"
+    +print_strlit_line_wspc "tokenize-mnemonic"
     ; .tnum, .str, .pos, .ec, .etoken, .epos, .eflags
     +test_tokenize_mnemonic $01, test_find_in_token_list_1, 0, 1, mnemonic_adc, 3, 0
     +test_tokenize_mnemonic $02, test_find_in_token_list_2, 0, 1, mnemonic_adcq, 4, 0
@@ -1351,35 +1342,30 @@ run_test_suite_cmd:
     +test_tokenize_mnemonic $08, test_find_in_token_list_8, 0, 1, mnemonic_adc, 5, F_ASM_FORCE8
     +test_tokenize_mnemonic $09, test_find_in_token_list_9, 0, 1, mnemonic_adc, 5, F_ASM_FORCE16
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-keyword"
+    +print_strlit_line_wspc "test-expect-keyword"
     +test_expect_keyword $01, test_expect_keyword_1, test_expect_keyword_2, test_expect_keyword_line_1, kw_xor, 1, 0
     +test_expect_keyword $02, test_expect_keyword_2, test_expect_keyword_end, test_expect_keyword_line_1, kw_xor, 0, 3
     +test_expect_keyword $03, test_expect_keyword_2, test_expect_keyword_end, test_expect_keyword_line_2, kw_xor, 0, 3
     +test_expect_keyword $04, test_expect_keyword_2, test_expect_keyword_end, test_expect_keyword_line_3, kw_xor, 1, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-opcode"
+    +print_strlit_line_wspc "test-expect-opcode"
     ; .tnum, .tokbuf, .tokbufend, .ec, .etokpos, .ea
     +test_expect_opcode $01, test_expect_oppop_1, test_expect_oppop_2, 1, 0, 0, 0
     +test_expect_opcode $02, test_expect_oppop_2, test_expect_oppop_3, 0, 3, 1, 0
     +test_expect_opcode $03, test_expect_oppop_3, test_expect_oppop_4, 1, 0, 0, 0
     +test_expect_opcode $04, test_expect_oppop_4, test_expect_oppop_end, 0, 3, 1, F_ASM_FORCE16
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-pseudoop"
+    +print_strlit_line_wspc "test-expect-pseudoop"
     +test_expect_pseudoop $01, test_expect_oppop_1, test_expect_oppop_2, 1, 0, 0
     +test_expect_pseudoop $02, test_expect_oppop_2, test_expect_oppop_3, 1, 0, 0
     +test_expect_pseudoop $03, test_expect_oppop_3, test_expect_oppop_end, 0, 2, po_to
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-literal"
+    +print_strlit_line_wspc "test-expect-literal"
     +test_expect_literal $01, test_expect_literal_1, test_expect_literal_2, 1, 0, 0, 0
     +test_expect_literal $02, test_expect_literal_2, test_expect_literal_3, 0, 6, $aabbccdd, 0
     +test_expect_literal $03, test_expect_literal_3, test_expect_literal_end, 0, 6, $aabbccdd, F_EXPR_FORCE16
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-pluses-or-minuses"
+    +print_strlit_line_wspc "test-expect-pluses-or-minuses"
     +test_expect_pms $01, test_expect_pms_1, test_expect_pms_2, 1, 0, 0
     +test_expect_pms $02, test_expect_pms_2, test_expect_pms_3, 0, tk_pluses, 1
     +test_expect_pms $03, test_expect_pms_3, test_expect_pms_4, 0, tk_minuses, 1
@@ -1395,8 +1381,7 @@ run_test_suite_cmd:
 
     ; -----------------------------------
 
-    +print_chr chr_cr
-    +print_strlit_line "test-find-symbol"
+    +print_strlit_line_wspc "test-find-symbol"
     +test_find_symbol $01, test_find_symbol_1, 5, 0, attic_symbol_table+(8*0)
     +test_find_symbol $02, test_find_symbol_2, 5, 0, attic_symbol_table+(8*1)
     +test_find_symbol $03, test_find_symbol_3, 4, 0, attic_symbol_table+(8*2)
@@ -1405,23 +1390,19 @@ run_test_suite_cmd:
     +test_find_symbol $06, test_find_symbol_6, 5, 0, attic_symbol_table+(8*5)
     +test_find_symbol $07, test_find_symbol_7, 5, 1, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "test-find-or-add-symbol"
+    +print_strlit_line_wspc "test-find-or-add-symbol"
     +test_find_or_add_symbol $01, test_find_symbol_3, 4, 0, attic_symbol_table+(8*2)
     +test_find_or_add_symbol $02, test_find_symbol_7, 5, 0, attic_symbol_table+(8*6)
 
-    +print_chr chr_cr
-    +print_strlit_line "test-get-symbol-value"
+    +print_strlit_line_wspc "test-get-symbol-value"
     +test_get_symbol_value $01, test_find_symbol_2, 5, 0, 23456
     +test_get_symbol_value $02, test_find_symbol_7, 5, 1, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "test-set-symbol-value"
+    +print_strlit_line_wspc "test-set-symbol-value"
     +test_set_symbol_value $01, test_find_symbol_2, 5, 98765
     +test_set_symbol_value $02, test_find_symbol_7, 5, 87654
 
-    +print_chr chr_cr
-    +print_strlit_line "test-assemble-bytes"
+    +print_strlit_line_wspc "test-assemble-bytes"
     +test_assemble_bytes $01, 0, 0, 1, 1, 0  ; undefined PC is error
     +test_assemble_bytes $02, 0, $c000, 0, 0, 0  ; zero length is ok
     +test_assemble_bytes $03, 0, $c000, 5, 0, $c005
@@ -1431,25 +1412,21 @@ run_test_suite_cmd:
     +test_assemble_bytes_twice $07, $ff, $c000, $c005, 5, $c00a, test_assemble_bytes_twice_1, test_assemble_bytes_twice_2
     +test_assemble_bytes_twice $08, $ff, $c000, $d000, 5, $d005, test_assemble_bytes_twice_2, test_assemble_bytes_twice_2_end
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-token"
+    +print_strlit_line_wspc "test-expect-token"
     +test_expect_token $01, 1, test_expect_token_1, test_expect_token_2, 1, 0
     +test_expect_token $02, 1, test_expect_token_2, test_expect_token_end, 0, 2
     +test_expect_token $03, 4, test_expect_token_2, test_expect_token_end, 1, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-label"
+    +print_strlit_line_wspc "test-expect-label"
     +test_expect_label $01, test_expect_label_1, test_expect_label_2, 1, 0, 0, 0
     +test_expect_label $02, test_expect_label_2, test_expect_label_end, 0, 3, 99, 5
 
-    +print_chr chr_cr
-    +print_strlit_line "test-segment-traversal"
+    +print_strlit_line_wspc "test-segment-traversal"
     +test_segment_traversal $01, 0
     +test_segment_traversal $02, 1
     +test_segment_traversal $03, 5
 
-    +print_chr chr_cr
-    +print_strlit_line "test-segment-overlap"
+    +print_strlit_line_wspc "test-segment-overlap"
 
     ; $0100 cmp $0080 -> Z=0 C=1
     ; lda #$00 : sta expr_a : lda #$01 : sta expr_a+1 : lda #$80 : sta expr_a+2 : lda #$00 : sta expr_a+3
@@ -1474,6 +1451,5 @@ run_test_suite_cmd:
     +test_segment_overlap_any $09, 1
 
 
-    +print_chr chr_cr
-    +print_strlit_line "-- all tests passed --"
+    +print_strlit_line_wspc "-- all tests passed --"
     rts

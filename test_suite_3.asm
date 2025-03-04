@@ -256,8 +256,7 @@ test_expect_addressing_expr_36: !pet "lda [$fffe],z",0  ; err_value_out_of_range
 !macro test_expect_expr .tnum, .tname, .tokbuf, .tokbufend, .lineaddr, .ec, .etokpos, .eresult, .eflags {
     +test_start .tnum
 
-    +print_chr chr_spc
-    +print_strlit .tname
+    +print_strlit_wspc .tname
 
     ldx #.tokbufend-.tokbuf
     dex
@@ -800,8 +799,7 @@ run_test_suite_cmd:
 
     ; -----------------------------------
 
-    +print_chr chr_cr
-    +print_strlit_line "test-expect-addressing-expr"
+    +print_strlit_line_wspc "test-expect-addressing-expr"
 
     +test_expect_addressing_expr $15, test_expect_addressing_expr_21, 1, 0, 0, 0, 0, err_syntax, 6+4
     ; TODO: this test isn't tokenizing correctly? can't repro in real life
@@ -822,8 +820,7 @@ run_test_suite_cmd:
     +test_expect_addressing_expr $24, test_expect_addressing_expr_36, 1, 0, 0, 0, 0, err_value_out_of_range, 5+4
 
 
-    +print_chr chr_cr
-    +print_strlit_line "test-assemble-pc"
+    +print_strlit_line_wspc "test-assemble-pc"
     +start_test_expect_expr 0
     +test_assemble_pc_assign $01, test_assemble_pc_assign_tb_1, test_assemble_pc_assign_tb_2, test_assemble_pc_assign_line_1, 1, 0, 0, 0, 0
     +test_assemble_pc_assign $02, test_assemble_pc_assign_tb_2, test_assemble_pc_assign_tb_3, test_assemble_pc_assign_line_1, 0, 10, 0, $0000ccdd, 1
@@ -840,8 +837,7 @@ run_test_suite_cmd:
 
     ; -----------------------------------
 
-    +print_chr chr_cr
-    +print_strlit_line "test-assemble-label"
+    +print_strlit_line_wspc "test-assemble-label"
     +start_test_expect_expr 0
 
     ; .tnum, .tokbuf, .tokbufend, .lineaddr, .ec, .etokpos, .eerr, .ez, .edefined, .evalue, .ezero
@@ -886,8 +882,7 @@ run_test_suite_cmd:
     +assemble_label_for_test test_assemble_label_tb_5, test_assemble_label_tb_6, test_assemble_label_line_1
     +test_assemble_label $0A, test_assemble_label_tb_8, test_assemble_label_tb_end, test_assemble_label_line_2, 0, 3, 0, 1, 1, $aabb, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "test-forced16"
+    +print_strlit_line_wspc "test-forced16"
     jsr init_forced16
     +test_forced16 $01, $aabb, 0, 0
     jsr init_forced16
@@ -902,8 +897,7 @@ run_test_suite_cmd:
     +test_forced16 $09, $bbcc, 0, 0
     +test_forced16 $0A, $ccdd, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "segment sorting"
+    +print_strlit_line_wspc "segment sorting"
 
     +test_compare_segments_for_sort $01, test_seglist_sorted, test_seglist_sorted_end, 0, 4, 0
     +test_compare_segments_for_sort $02, test_seglist_sorted, test_seglist_sorted_end, 4, 16, 0
@@ -925,8 +919,7 @@ run_test_suite_cmd:
     +test_sort_segment_list $0D, test_seglist_mixed_2, test_seglist_mixed_2_end, test_seglist_mixed_2_result, test_seglist_mixed_2_result_end
     +test_sort_segment_list $0E, test_seglist_mixed_3, test_seglist_mixed_3_end, test_seglist_mixed_3_result, test_seglist_mixed_3_result_end
 
-    +print_chr chr_cr
-    +print_strlit_line "test-assemble-line"
+    +print_strlit_line_wspc "test-assemble-line"
     ; .tnum, .line_addr, .ec, .eerr, .epos
     +test_assemble_line $01, test_assemble_line_1, 0, 0, 0
     +test_assemble_line $02, test_assemble_line_2, 0, 0, 0
@@ -944,8 +937,7 @@ run_test_suite_cmd:
 
     ; TODO: assert segment bytes for successful statements
 
-    +print_chr chr_cr
-    +print_strlit_line "test-assemble-instruction"
+    +print_strlit_line_wspc "test-assemble-instruction"
     ; .tnum, .str, .ec, .eerr, .epc, .ebytes, .ebytes_len
     +test_assemble_instruction $01, ai_1, 0, 0, $0011, ai_1_bytes, ai_1_bytes_end-ai_1_bytes
     +test_assemble_instruction $02, ai_2, 0, 0, $0012, ai_2_bytes, ai_2_bytes_end-ai_2_bytes
@@ -976,8 +968,7 @@ run_test_suite_cmd:
     +test_assemble_instruction $1A, ai_26, 0, 0, $0012, ai_26_bytes, ai_26_bytes_end-ai_26_bytes
     +test_assemble_instruction $1B, ai_27, 0, 0, $0013, ai_27_bytes, ai_27_bytes_end-ai_27_bytes
 
-    +print_chr chr_cr
-    +print_strlit_line "tokenize"
+    +print_strlit_line_wspc "tokenize"
     +test_tokenize $01, test_tokenize_1, test_tokenize_1e, test_tokenize_2, 0, 0
     +test_tokenize $02, test_tokenize_2, test_tokenize_2e, test_tokenize_3, 0, 0
     +test_tokenize $03, test_tokenize_3, test_tokenize_3e, test_tokenize_4, 0, 0
@@ -998,8 +989,7 @@ run_test_suite_cmd:
     +test_tokenize $12, test_tokenize_17, test_tokenize_17e, test_tokenize_18, 0, 0
     +test_tokenize $13, test_tokenize_18, test_tokenize_18e, test_tokenize_last, 0, 0
 
-    +print_chr chr_cr
-    +print_strlit_line "test rellabels"
+    +print_strlit_line_wspc "test rellabels"
 
     +start_test_rellabel
     +test_add_rellabel $01, test_add_rellabel_1, test_add_rellabel_2
@@ -1078,6 +1068,5 @@ run_test_suite_cmd:
     +test_eval_rellabel $0F, 0, 1, $1600, 0, 0
 
 
-    +print_chr chr_cr
-    +print_strlit_line "-- all tests passed --"
+    +print_strlit_line_wspc "-- all tests passed --"
     rts
