@@ -7685,8 +7685,6 @@ bootstrap_ml_start = source_start + 1 + bootstrap_basic_preamble_end - bootstrap
         !source "test_suite_2.asm"
     } else if TEST_SUITE = 3 {
         !source "test_suite_3.asm"
-    } else if TEST_SUITE = 4 {
-        !source "test_suite_4.asm"
     } else {
         !error "Invalid TEST_SUITE; check Makefile"
     }

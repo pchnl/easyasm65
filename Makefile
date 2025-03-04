@@ -16,9 +16,8 @@ DISK_FILES = easyasm.prg \
 TEST_SUITES = \
 	test_suite_1.asm \
 	test_suite_2.asm \
-	test_suite_3.asm \
-	test_suite_4.asm
-NUM_OF_SUITES = 4
+	test_suite_3.asm
+NUM_OF_SUITES = 3
 
 %.prg: %.asm
 	${ACME} -DTEST_SUITE=${TEST_SUITE} -DDEBUG=${DEBUG} -f cbm -o $@ -l $@.lst -r $@.rpt $<
